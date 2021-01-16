@@ -69,44 +69,26 @@ public class P1202_SmallestStringWithSwaps{
     //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
     public String smallestStringWithSwaps(String s, List<List<Integer>> pairs) {
-        if (s.length() == 1 || pairs.size() == 0) {
+        int n = s.length();
+        if (n == 1 || pairs.size() == 0) {
             return s;
         }
-        List<Set<Integer>> sets = new ArrayList<>();
         
-        pairs.forEach(pair -> {
-            AtomicReference<Set<Integer>> firstSet = new AtomicReference<>();
-            Iterator<Set<Integer>> iterator = sets.iterator();
-            while (iterator.hasNext()) {
-                Set<Integer> set = iterator.next();
-                if (set.contains(pair.get(0)) || set.contains(pair.get(1))) {
-                    if (firstSet.get() == null) {
-                        set.addAll(pair);
-                        firstSet.set(set);
-                    } else {
-                        firstSet.get().addAll(set);
-                        iterator.remove();
-                    }
-                }
-            }
-            if (firstSet.get() == null) {
-                sets.add(new HashSet<>(pair));
-            }
-        });
-        char[] chars = s.toCharArray();
-        sets.forEach(set -> {
-            AtomicReference<List<Character>> child = new AtomicReference<>(new ArrayList<>());
-            Integer[] ints = new Integer[set.size()];
-            set.forEach(index -> child.get().add(chars[index]));
-            child.get().sort(Character::compareTo);
-            ints = set.toArray(ints);
-            Arrays.sort(ints);
-            for (int i = 0; i < set.size(); i++) {
-                chars[ints[i]] = child.get().get(i);
-            }
-        });
+        UF uf = new UF(n);
+        for (List<Integer> pair : pairs) {
+            uf.union(pair.get(0), pair.get(1));
+        }
         
-        Map<String,String> map = new HashMap<>();
+        Map<Integer,PriorityQueue<Character>> map = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            map.computeIfAbsent(uf.find(i), key -> new PriorityQueue<>()).offer(s.charAt(i));
+        }
+        
+        char[] chars = new char[n];
+        for (int i = 0; i < n; i++) {
+            chars[i] = map.get(uf.find(i)).poll();
+        }
+        
         return String.valueOf(chars);
     }
 }
