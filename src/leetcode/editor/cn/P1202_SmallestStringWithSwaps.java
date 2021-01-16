@@ -114,15 +114,13 @@ class Solution {
             if (qID == pID) {
                 return;
             }
-            for (int i = 0; i < id.length; i++) {
-                if (id[i] == pID) {
-                    id[i] = qID;
-                }
-            }
+            id[qID] = pID;
         }
         
         public int find(int p) {
-            return id[p];
+            while (p != id[p])
+                p = id[p];
+            return p;
         }
         
         public boolean connected(int p, int q) {
