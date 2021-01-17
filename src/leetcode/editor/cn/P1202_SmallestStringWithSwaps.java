@@ -59,11 +59,13 @@ import java.util.concurrent.atomic.AtomicReference;
 public class P1202_SmallestStringWithSwaps{
     public static void main(String[] args) {
         //测试代码
+        long time = System.currentTimeMillis();
         Solution solution = new P1202_SmallestStringWithSwaps().new Solution();
         List<List<Integer>> pairs = new ArrayList<>();
         pairs.add(Arrays.asList(0,1));
         pairs.add(Arrays.asList(1,2));
         System.out.println(solution.smallestStringWithSwaps("cba",pairs));
+        System.out.println("time==" + (System.currentTimeMillis() - time));
     }
     //力扣代码
     //leetcode submit region begin(Prohibit modification and deletion)
@@ -97,14 +99,18 @@ class Solution {
         
         private int[] id;
         
+        private int[] sz;
+        
         private int count;
         
         
         public UF(int n) {
             count = n;
             id = new int[n];
+            sz = new int[n];
             for (int i = 0; i < n; i++) {
                 id[i] = i;
+                sz[i] = 0;
             }
         }
         
@@ -114,12 +120,22 @@ class Solution {
             if (qID == pID) {
                 return;
             }
-            id[qID] = pID;
+            if (sz[qID] == sz[pID]) {
+                id[pID] = qID;
+                sz[qID] += 1;
+            } else if (sz[qID] > sz[pID]) {
+                id[pID] = qID;
+            } else {
+                id[qID] = pID;
+            }
+            count--;
         }
         
         public int find(int p) {
-            while (p != id[p])
-                p = id[p];
+            if (p != id[p]) {
+                p = find(id[p]);
+                id[p] = p;
+            }
             return p;
         }
         
